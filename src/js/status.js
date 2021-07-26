@@ -1,10 +1,12 @@
 // Notice the import statements
 import './general';
+const regeneratorRuntime = require("regenerator-runtime");
 import apiCall from './services/api/apiCall';
-import Chart from 'chart.js';
+import { Chart, registerables } from 'chart.js';
 
 class Status {
   constructor() {
+    Chart.register(...registerables);
     /* Part 1 - Finish the constructor
     - Add references to each of these elements on the page
         this.$experienceTab = document.querySelector('#experienceTab');
@@ -61,7 +63,7 @@ class Status {
     this.hideCharts();
     this.$experienceCanvas.classList.remove('hidden');
     this.$experienceTab.parentElement.classList.add('active');
-    const data = {
+    const chartData = {
         datasets: [{
             data: this.statisticData.experience,
             backgroundColor:[
@@ -73,7 +75,8 @@ class Status {
               'white',
               'white',
               'white',
-            ]
+            ],
+            borderWidth: 1
         }],
         labels: [
             'Beginner',
@@ -83,7 +86,8 @@ class Status {
     };
     new Chart(this.$experienceCanvas,{
       type: 'pie',
-      data,
+      data: chartData,
+      options: {}
     });
   }
 
