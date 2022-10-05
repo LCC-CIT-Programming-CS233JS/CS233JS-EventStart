@@ -34,8 +34,8 @@ class Status {
        the only parameter is 'statistics'.
        When the Promise returns successfully
           set statisticsData to the data that's returned
-          hide the loading indicator
-          show the tab area and the chart area
+          hide the loading indicator - add visually-hidden style
+          show the tab area and the chart area - remove visually-hidden style
           call loadExperience - it's the default chart
        When an error occurs
           hide the loading indicator
@@ -50,19 +50,19 @@ class Status {
   }
 
   hideCharts() {
-    this.$experienceTab.parentElement.classList.remove('active');
-    this.$professionTab.parentElement.classList.remove('active');
-    this.$ageTab.parentElement.classList.remove('active');
-    this.$ageCanvas.classList.add('hidden');
-    this.$professionCanvas.classList.add('hidden');
-    this.$experienceCanvas.classList.add('hidden');
+    this.$experienceTab.classList.remove('active');
+    this.$professionTab.classList.remove('active');
+    this.$ageTab.classList.remove('active');
+    this.$ageCanvas.classList.add('visually-hidden');
+    this.$professionCanvas.classList.add('visually-hidden');
+    this.$experienceCanvas.classList.add('visually-hidden');
   }
 
   loadExperience(event = null) {
     if(event) event.preventDefault();
     this.hideCharts();
-    this.$experienceCanvas.classList.remove('hidden');
-    this.$experienceTab.parentElement.classList.add('active');
+    this.$experienceCanvas.classList.remove('visually-hidden');
+    this.$experienceTab.classList.add('active');
     const chartData = {
         datasets: [{
             data: this.statisticData.experience,

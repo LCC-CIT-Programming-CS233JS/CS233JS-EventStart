@@ -1,56 +1,42 @@
-require('dotenv').config();
 const webpack = require('webpack');
-const glob = require('glob-all');
-const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const path = require('path');
+const htmlWebpackPlugin = require("html-webpack-plugin");
+const copyPlugin = require("copy-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
+// this loads all of the variables in the .env file
+// they're available in your code as process.env.KEY
+require('dotenv').config();
 
 /**
  * flag Used to check if the environment is production or not
- */
- const isProduction = (process.env.NODE_ENV === 'production');
+*/
+const isProduction = (process.env.NODE_ENV === 'production');
 
- /**
-  * Include hash to filenames for cache busting - only at production
-  */
- const fileNamePrefix = isProduction? '[chunkhash].' : '';
-
- /**
- * Options to clean dist folder
- */
-const pathsToClean = [
-  'dist'
-];
-const cleanOptions = {
-  root: __dirname,
-  verbose: true,
-  dry: false,
-  exclude: [],
-};
+/**
+* Include hash to filenames for cache busting - only at production
+*/
+const fileNamePrefix = isProduction? '[chunkhash].' : '';
 
 module.exports = {
-    mode: 'development',
-    context: __dirname,
+    mode: !isProduction ? 'development': 'production',
     entry: {
-      general: './src/js/general.js',
       home: './src/js/home.js',
-      status: './src/js/status.js',
       about: './src/js/about.js',
+      status: './src/js/status.js',
     },
     output: {
-      path: __dirname + "/dist",
+      path: path.resolve(__dirname, "dist"),
       filename: fileNamePrefix + '[name].js',
-      publicPath: './',
+      assetModuleFilename: "assets/[name][ext]",
       clean: true,
-      library: 'bundle'
     },
-    devServer: {  
-      contentBase: './',
-      compress: true,  
-      port: 8080,  
-      hot: true,
+    target: 'web',
+    devServer: { 
+      static: "./dist"
     }, 
-    devtool: isProduction ? 'source-map' : 'inline-source-map',
+    /* no separate source map files in production */
+    devtool: !isProduction ? 'source-map' : 'inline-source-map', 
     module: {
       rules: [	
         { 
@@ -63,63 +49,69 @@ module.exports = {
           }}
         }, 
         { 
-          test: /\.css$/, 
+          test: /\.css$/i, 
+          /* separate js code and css in production */
           use: isProduction ?
             [ MiniCssExtractPlugin.loader, 'css-loader']	:
-            [ 'style-loader', 'css-loader']
+            [ 'style-loader', 'css-loader']		
         },
         { 
-          test: /\.less$/, 
-          use: [ 'style-loader', 'css-loader', 'less-loader']		
-        },
-        {
-          test: /\.scss$/,
-          use: [
-            'style-loader',
-            'css-loader',
-            'sass-loader'
-          ]
+            test: /.s[ac]ss$/i, 
+            use: isProduction ?
+              [ MiniCssExtractPlugin.loader, 'css-loader', 'sass-loader']	:
+              [ 'style-loader', 'css-loader' , 'sass-loader']		
         },
         {  
           test: /\.(svg|eot|ttf|woff|woff2)$/i,  
-          use: {
-            loader: 'url-loader',  
-            options: {    limit: 10000,    name: 'fonts/[name].[ext]'  }
-          }
+          type: "asset/resource",
         },
         {
-          test: /\.(png|jpg|gif)$/,
-          use: [
-            {
-              loader: 'url-loader', options: { limit: 10000, name: 'images/[name].[ext]'}
-            },
-          'img-loader'
-          ],
+          test: /\.(png|jpg|gif)$/i,
+          type: "asset/resource",
         },
       ],
     },
-    plugins: [  
-        new webpack.ProvidePlugin({ 
-              jQuery: 'jquery', 
-              $: 'jquery', 
-              jquery: 'jquery' 
-            }), 
-        new webpack.DefinePlugin({ // Remove this plugin if you don't plan to define any global constants
-          NODE_ENV: JSON.stringify(process.env.NODE_ENV),
-          SERVER_URL: JSON.stringify(process.env.SERVER_URL),
-          GMAP_KEY: JSON.stringify(process.env.GMAP_KEY),
-        }),
+    plugins: [
+      new htmlWebpackPlugin({
+        template: path.resolve(__dirname, "./src/index.html"),
+        chunks: ["home"],
+        inject: "body",
+        filename: "index.html",
+      }),
+      new htmlWebpackPlugin({
+        template: path.resolve(__dirname, "./src/about.html"),
+        chunks: ["about"],
+        inject: "body",
+        filename: "about.html",
+      }),
+      new htmlWebpackPlugin({
+        template: path.resolve(__dirname, "./src/status.html"),
+        chunks: ["status"],
+        inject: "body",
+        filename: "status.html",
+      }),
+      new copyPlugin({
+        patterns: [
+          {
+            from: path.resolve(__dirname, "src/assets/images"),
+            to: path.resolve(__dirname, "dist/assets/images"),
+          },
+        ],
+      }),
+      /* app uses global SERVER_URL rather than process.env.SERVER_URL */
+      new webpack.DefinePlugin({
+        NODE_ENV: JSON.stringify(process.env.NODE_ENV),
+        SERVER_URL: JSON.stringify(process.env.SERVER_URL),
+        GMAP_KEY: JSON.stringify(process.env.GMAP_KEY),
+      }),
     ],
-};
-
-/**
- * Non-Production plugins
- */
- if(!isProduction) {
-  module.exports.plugins.push(
-    new webpack.HotModuleReplacementPlugin() // HMR plugin will cause problems with [chunkhash]
-  );
-};
+    /* separates js (and css) that is shared between bundles - allows browser to cache */
+    optimization: {
+      splitChunks: {
+        chunks: "all",
+      },
+    },
+}
 
 /**
  * Production only plugins
@@ -128,8 +120,7 @@ module.exports = {
   module.exports.plugins.push(
     new MiniCssExtractPlugin({
       filename: fileNamePrefix + "[name].css",
-    }), 
-    new CleanWebpackPlugin()
+    })
   );
 };
   

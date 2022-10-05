@@ -1,11 +1,12 @@
 import './general';
+const regeneratorRuntime = require("regenerator-runtime");
 
 /* Part 1 - Check out the validation module in services/formValidation */
 import validateRegistrationForm from './services/formValidation/validateRegistrationForm';
 import apiCall from './services/api/apiCall';
 
 import toastr from 'toastr';
-import '../../node_modules/toastr/toastr.less';
+import 'toastr/toastr.scss';
 
 class Home {
   constructor() {
@@ -81,7 +82,7 @@ class Home {
   */
   highlightErrors(result) {
     if(!result.username) {
-      this.$username.parentElement.classList.add('has-error');
+      this.$username.classList.add('is-invalid');
     }
   }
 
@@ -89,7 +90,7 @@ class Home {
      It gets called after the form is validated.
   */
   clearErrors() {
-    this.$username.parentElement.classList.remove('has-error');
+    this.$username.classList.remove('is-invalid');
   }
 
   /* TEST - Instantiate a Home object at bottom of file first */
@@ -99,8 +100,8 @@ class Home {
   /* Part 6 - Finish this function.  It makes the api call.  TEST */
   submitForm(formValues) {
 
-    // hide the submit button
-    // show the loading indicator
+    // hide the submit button - adding bootstrap style visually-hidden will do that
+    // show the loading indicator - removing bootstrap style visually-hidden will do that
     /* call apiCall and
        pass '/registration', the form values, and POST as parameters
        When the ajax call returns successfully

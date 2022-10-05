@@ -30,9 +30,12 @@ export function initMap() {
   infowindow.open(map,marker);
 }
 
+// makes the function initMap available globally - without window object in the added script
+window.initMap = initMap;
+
 window.addEventListener("load", () => {
   const $script = document.createElement('script');
   // the google maps api has to look exactly like this except for the callback
-  $script.src = `https://maps.googleapis.com/maps/api/js?key=${GMAP_KEY}&callback=bundle.initMap`;
+  $script.src = `https://maps.googleapis.com/maps/api/js?key=${GMAP_KEY}&callback=initMap`;
   document.querySelector('body').appendChild($script);
 });
