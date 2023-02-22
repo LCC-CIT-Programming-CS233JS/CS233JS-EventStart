@@ -6,7 +6,6 @@ export default function validateRegistrationForm(formValues) {
     username: validateUserName(formValues.username),
     email: validateEmail(formValues.email),
     phone: validatePhone(formValues.phone),
-    age: validateAge(formValues.age),
     profession: validateProfession(formValues.profession),
     experience: validateExperience(formValues.experience),
   };
@@ -52,18 +51,12 @@ function validatePhone(phone) {
   return true;
 }
 
-// must be between 10 and 25 inclusive.  Use a regular expression
-// to make sure that the age is a 2 digit number before checking the range.
-function validateAge(age) {
-  return true;
-}
-
 // must be either school, college, trainee or employee.  No reg exp.
 function validateProfession(profession) {
   return true;
 }
 
-// must be between 0 and 4 years exclusive.  Use a regular expression.
+// must be beginner, intermediate or advanced.  Use a regular expression.
 function validateExperience(experience) {
   return true;
 }
