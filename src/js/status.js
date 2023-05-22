@@ -20,6 +20,10 @@ class Status {
         this.allData;
         this.professionData;
         this.experienceData;
+    - Add instance variables for the chart objects themselves
+        this.experienceChart;
+        this.professionChart;
+        
     - Call loadData.  It will make the ajax call and create one graph
     - Call addEventListeners
     */
@@ -52,8 +56,9 @@ class Status {
           set professionData to the return from calling groupData with all of the data and 'profession' as parameters
           hide the loading indicator - add visually-hidden style
           show the tab area and the chart area - remove visually-hidden style
-          call loadProfession - it won't work yet but it will at the end of part 3.
-          call loadExperience - it's the default chart.  Eventually you'll call loadProfession too
+          call createExperienceChart
+          call createProfessionChart - it won't work yet but it will at the end of part 3
+          call showExperience - it's the default chart.  Eventually you'll call loadProfession too
        When an error occurs
           hide the loading indicator
           show the error message
@@ -72,45 +77,53 @@ class Status {
     this.$experienceCanvas.classList.add('visually-hidden');
   }
 
-  loadExperience(event = null) {
+  createExperienceChart() {
+    const chartData = {
+      datasets: [{
+          data: [this.experienceData.beginner, this.experienceData.intermediate, this.experienceData.advanced], // the chart expects the values in an array in this order
+          backgroundColor:[
+            'rgba(255, 99, 132, 0.6)',
+            'rgba(54, 162, 235, 0.6)',
+            'rgba(255, 206, 86, 0.6)',
+          ],
+          borderColor: [
+            'white',
+            'white',
+            'white',
+          ],
+          borderWidth: 1
+      }],
+      labels: [
+          'Beginner',
+          'Intermediate',
+          'Advanced'
+      ]
+    };
+    new Chart(this.$experienceCanvas, {
+      type: 'pie',
+      data: chartData,
+      options: {}
+    });   
+  }
+
+  showExperience(event = null) {
     if(event) event.preventDefault();
     this.hideCharts();
     this.$experienceCanvas.classList.remove('visually-hidden');
     this.$experienceTab.classList.add('active');
-    const chartData = {
-        datasets: [{
-            data: [this.experienceData.beginner, this.experienceData.intermediate, this.experienceData.advanced], // the chart expects the values in an array in this order
-            backgroundColor:[
-              'rgba(255, 99, 132, 0.6)',
-              'rgba(54, 162, 235, 0.6)',
-              'rgba(255, 206, 86, 0.6)',
-            ],
-            borderColor: [
-              'white',
-              'white',
-              'white',
-            ],
-            borderWidth: 1
-        }],
-        labels: [
-            'Beginner',
-            'Intermediate',
-            'Advanced'
-        ]
-    };
-    new Chart(this.$experienceCanvas,{
-      type: 'pie',
-      data: chartData,
-      options: {}
-    });
   }
 
-  /* Part 3 - Write this method. 
+  /* Part 3 - Write these 2 methods. 
    Then TEST.  Both charts should now work. */
 
   // It's just like the loadExperience but there are 4 'slices' for these chart labels.
   // 'School Students', 'College Students', 'Trainees', 'Employees'.  The properties in the grouped data are school, college, trainee, employee
-  loadProfession(event = null) {
+  createProfessionChart() {
+ 
+  }
+  
+  showProfession(event = null) {
+  
   }
 
 }
